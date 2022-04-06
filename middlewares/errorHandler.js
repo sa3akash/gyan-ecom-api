@@ -17,7 +17,7 @@ const errorHandler = (err, req, res, next) => {
   }
 
   if (err instanceof CustomErrorHandler) {
-    statusCode = err.status || 409;
+    statusCode = err.stauts;
     data = {
       message: err.message,
     };
