@@ -10,6 +10,7 @@ app.use(express.json());
 app.use('/api',routes)
 
 // Database connection
+//DB_URL='mongodb+srv://flip-eccomarce:avroo@cluster0.sjz2v.mongodb.net/rest-api?retryWrites=true&w=majority'
 mongoose.connect(DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
