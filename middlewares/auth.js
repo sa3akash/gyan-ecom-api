@@ -11,7 +11,7 @@ const auth = (req, res, next) => {
     const { _id, role } = JwtToken.verify(token);
     const users = {
       _id,
-      role,
+      role
     };
     req.users = users;
     next();

@@ -1,17 +1,20 @@
 import express from "express";
-import { loginControllers, registerController, userControllers } from "../controllers";
-import auth from '../middlewares/auth'
-
+import {
+  loginControllers,
+  registerController,
+  userControllers,
+  refreshControler,
+} from "../controllers";
+import auth from "../middlewares/auth";
 
 const router = express.Router();
 
-router.post('/register', registerController.register)
-router.post('/login', loginControllers.login)
-router.get('/me',auth, userControllers.me)
+router.post("/register", registerController.register);
+router.post("/login", loginControllers.login);
+router.get("/me", auth, userControllers.me);
+router.post("/refresh", refreshControler.refresh);
+router.post("/logout", auth, loginControllers.logout);
 
+export default router;
 
-
-export default router
-
-
-// 2 08 00
+// 3 14 00

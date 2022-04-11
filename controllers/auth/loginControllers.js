@@ -1,11 +1,13 @@
 import Joi from "joi";
-import { User } from "../../models";
+import { RefreshToken, User } from "../../models";
 import CustomErrorHandler from "../../services/CustomErrorHandler";
 import bcrytp from "bcrypt";
 import JwtToken from "../../services/JwtToken";
+import { JWT_REFRESH_SECRET } from "../../config";
 
 const loginControllers = {
   async login(req, res, next) {
+    // validatae start
     const loginSchemaValidator = Joi.object({
       email: Joi.string().email().required(),
       password: Joi.string()
@@ -34,11 +36,40 @@ const loginControllers = {
       }
       // token ganarate
       const accessToken = JwtToken.sign({ _id: user._id, role: user.role });
-      res.json({ Token: accessToken });
-      
+      const refreshToken = JwtToken.sign(
+        { _id: user._id, role: user.role },
+        "1y",
+        JWT_REFRESH_SECRET
+      );
+      //save refresh token database
+      await RefreshToken.create({ token: refreshToken });
+
+      res.json({ Token: accessToken, refreshToken: refreshToken });
     } catch (err) {
       return next(err);
     }
+  },
+
+  // Logout method work
+
+  async logout(req, res, next) {
+    // validation
+
+    const logoutSchemaValidator = Joi.object({
+      token: Joi.string().required(),
+    });
+    // validator
+    const { error } = logoutSchemaValidator.validate(req.body);
+    if (error) {
+      return next(error);
+    }
+    // delete token in database
+    try {
+      await RefreshToken.deleteOne({ Token: req.body.token });
+    } catch (err) {
+      return next(new Error("Somthing went wrong in the Database"));
+    }
+    res.json({ msg: "logout" });
   },
 };
 
