@@ -5,8 +5,9 @@ import errorHandler from "./middlewares/errorHandler";
 import routes from "./routes";
 
 const app = express();
+app.use(express.urlencoded({ extended: false }));
+// app.use('/uploads', express.static('uploads'));
 app.use(express.json());
-
 app.use('/api',routes)
 
 // Database connection
