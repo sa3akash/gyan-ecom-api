@@ -3,11 +3,14 @@ import mongoose from "mongoose";
 import { APP_PORT,DB_URL } from "./config";
 import errorHandler from "./middlewares/errorHandler";
 import routes from "./routes";
+import path from "path"
 
 const app = express();
-app.use(express.urlencoded({ extended: false }));
-// app.use('/uploads', express.static('uploads'));
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+global.appRoot = path.resolve(__dirname);
+// app.use('/uploads', express.static('uploads'));
+
 app.use('/api',routes)
 
 // Database connection
