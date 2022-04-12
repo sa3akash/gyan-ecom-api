@@ -31,7 +31,8 @@ const handleMultipulData = multer({
 }).single("image");
 
 const productController = {
-  async store(req, res, next) {
+// create a product
+    async store(req, res, next) {
     // multipast/form data
     handleMultipulData(req, res, async (err) => {
       if (err) {
@@ -58,9 +59,8 @@ const productController = {
       }
 
       const { name, price, size } = req.body;
-
+      //product add to database
       let document;
-
       try {
         document = await Product.create({
           name,
@@ -75,6 +75,94 @@ const productController = {
       res.status(201).json(document);
     });
   },
+
+
+// update a product
+async update(req, res, next){
+  // multipast/form data
+  handleMultipulData(req, res, async (err) => {
+    if (err) {
+      return next(CustomErrorHandler.multerServerError(err.message));
+    }
+  // console.log(req.file);
+        let filePath;
+        if(req.file){
+          filePath = req.file.path;
+        }
+        
+      // validatae start
+      const productValidator = Joi.object({
+        name: Joi.string(),
+        price: Joi.number(),
+        size: Joi.string()
+      });
+  // validator
+  const { error } = productValidator.validate(req.body);
+  if (error) {
+    // delete photo
+   if(req.file){
+    fs.unlink(`${appRoot}/${filePath}`, (err) => {
+      if (err) {
+        return next(CustomErrorHandler.multerServerError(err.message));
+      }
+    });
+   }
+    return next(error); // joi validation error
+  }
+
+        const { name, price, size } = req.body;
+        //product add to database
+            let documentUpdate;
+            try {
+              documentUpdate = await Product.findOneAndUpdate({_id: req.params.id},{
+                name,
+                price,
+                size,
+                ...(req.file && {image: filePath})
+              },{ new: true });
+
+            } catch (err) {
+              return next(err);
+            }
+        console.log(documentUpdate);
+        res.status(201).json(documentUpdate);
+
+      });
+    },
+
+// delete a product
+
+    async distroy(req, res, next){
+      const deleteDocument  = await Product.findOneAndRemove({_id: req.params.id},{new: true})
+      if(!deleteDocument){
+        return next(new Error("Nothing to Delete!"))
+      }
+      // image delete 
+      const imagePath = deleteDocument.image;
+      fs.unlink(`${appRoot}/${imagePath}`, (err)=>{
+        if(err){
+          return next(new Error("Internal Servs"))
+        }
+      })
+      res.json(deleteDocument);
+    },
+
+
+    // get all prodcuts 
+
+   async index(req, res, next){
+     // pagination library name mongoose-pagination
+
+     let allProduct;
+      try{
+          allProduct = await Product.find().select('-updatedAt -__v');
+      } catch(err){
+        return next(CustomErrorHandler.multerServerError())
+      }
+
+      res.json(allProduct);
+    }
 };
 
 export default productController;
+
