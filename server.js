@@ -13,6 +13,8 @@ global.appRoot = path.resolve(__dirname);
 
 app.use('/api',routes)
 
+app.use('/uploads', express.static('uploads'));
+
 // Database connection
 //DB_URL='mongodb+srv://flip-eccomarce:avroo@cluster0.sjz2v.mongodb.net/rest-api?retryWrites=true&w=majority'
 mongoose.connect(DB_URL, {

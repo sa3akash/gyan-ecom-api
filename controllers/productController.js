@@ -31,6 +31,7 @@ const handleMultipulData = multer({
 }).single("image");
 
 const productController = {
+
 // create a product
     async store(req, res, next) {
     // multipast/form data
@@ -76,9 +77,8 @@ const productController = {
     });
   },
 
-
 // update a product
-async update(req, res, next){
+    async update(req, res, next){
   // multipast/form data
   handleMultipulData(req, res, async (err) => {
     if (err) {
@@ -147,8 +147,7 @@ async update(req, res, next){
       res.json(deleteDocument);
     },
 
-
-    // get all prodcuts 
+// get all prodcuts 
 
    async index(req, res, next){
      // pagination library name mongoose-pagination
@@ -161,7 +160,19 @@ async update(req, res, next){
       }
 
       res.json(allProduct);
+    },
+
+//get single product
+  async single(req, res, next){
+    let singleProduct;
+    try{
+      singleProduct = await Product.findOne({_id: req.params.id}).select("-__v -updatedAt")
+    } catch(err){
+      return next(CustomErrorHandler.multerServerError());
     }
+
+    res.status(201).json(singleProduct);
+  }    
 };
 
 export default productController;
